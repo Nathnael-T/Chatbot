@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@layer base {
+  html,
+  body,
+  #root {
+    @apply h-full w-full m-0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply overflow-hidden bg-[#071216] text-[#F8FAFC];
+    font-family: "Inter", system-ui, sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    @apply text-[#AAB6BC];
+    line-height: 1.7;
+  }
+
+  code,
+  pre {
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  input,
+  textarea,
+  button {
+    font-family: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
