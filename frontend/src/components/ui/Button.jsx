@@ -128,11 +128,8 @@ function Button({
 
                 active:scale-95
 
-                disabled:
-                opacity-50
-
-                disabled:
-                cursor-not-allowed
+                disabled:opacity-50
+                disabled:cursor-not-allowed
 
                 ${variants[variant]}
 

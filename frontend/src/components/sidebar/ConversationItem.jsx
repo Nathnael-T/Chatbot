@@ -28,10 +28,12 @@ function ConversationItem({
         <div
             className={`
                 group
+                relative
                 flex
                 w-full
                 items-center
                 gap-2
+                overflow-hidden
                 rounded-xl
                 border
                 p-1
@@ -39,11 +41,15 @@ function ConversationItem({
                 duration-200
                 ${
                     active
-                        ? "border-[#00AFB5]/50 bg-[#00AFB5]/10 shadow-[0_0_24px_rgba(0,175,181,0.16)]"
+                        ? "border-[#00AFB5]/70 bg-[#00AFB5]/15 shadow-[inset_0_0_0_1px_rgba(0,175,181,0.18),0_0_28px_rgba(0,175,181,0.18)]"
                         : "border-transparent hover:border-white/10 hover:bg-white/5"
                 }
             `}
         >
+            {active && (
+                <span className="absolute left-0 top-2 h-[calc(100%-1rem)] w-1 rounded-r-full bg-[#EFD28D]" />
+            )}
+
             <button
                 type="button"
                 onClick={() => onSelect(session.id)}
@@ -59,7 +65,7 @@ function ConversationItem({
                     rounded-lg
                     ${
                         active
-                            ? "bg-[#00AFB5]/20 text-[#00AFB5]"
+                            ? "bg-[#00AFB5]/25 text-[#00AFB5]"
                             : "bg-white/5 text-gray-400"
                     }
                 `}>
@@ -67,7 +73,7 @@ function ConversationItem({
                 </span>
 
                 <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium text-white">
+                    <span className={`block truncate text-sm font-medium ${active ? "text-white" : "text-gray-200"}`}>
                         {title}
                     </span>
 

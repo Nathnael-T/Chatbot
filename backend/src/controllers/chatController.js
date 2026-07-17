@@ -39,6 +39,12 @@ async function sendMessage(req,res){
             );
 
 
+        const session = await chatService.ensureSessionTitle(
+            sessionId,
+            message
+        );
+
+
         const aiMessage =
             await chatService.generateAIResponse(
                 sessionId,
@@ -48,7 +54,8 @@ async function sendMessage(req,res){
 
         res.json({
             userMessage,
-            aiMessage
+            aiMessage,
+            session
         });
 
 
