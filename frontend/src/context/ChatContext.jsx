@@ -1,10 +1,11 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 import {
     startChatSession,
     sendChatMessage,
     loadChatMessages,
-    loadSessions
+    loadSessions,
+    deleteChatSession
 } from "../services/chatService";
 
 
@@ -17,11 +18,41 @@ export function ChatProvider({ children }) {
     const [messages, setMessages] = useState([]);
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(false);
+    const activeSessionRef = useRef(null);
+    const selectionRequestRef = useRef(0);
 
 
     useEffect(() => {
         initializeChat();
     }, []);
+
+
+    function activateSession(id){
+
+        activeSessionRef.current = id;
+        setSessionId(id);
+
+        localStorage.setItem(
+            "activeSessionId",
+            id
+        );
+
+    }
+
+
+    function updateSession(updatedSession){
+
+        if(!updatedSession){
+            return;
+        }
+
+        setSessions(prev => prev.map(session => (
+            session.id === updatedSession.id
+                ? updatedSession
+                : session
+        )));
+
+    }
 
 
     async function initializeChat() {
@@ -69,13 +100,8 @@ export function ChatProvider({ children }) {
         const session = await startChatSession();
 
 
-        setSessionId(session.id);
-
-
-        localStorage.setItem(
-            "activeSessionId",
-            session.id
-        );
+        selectionRequestRef.current += 1;
+        activateSession(session.id);
 
 
         setMessages([]);
@@ -91,19 +117,43 @@ export function ChatProvider({ children }) {
 
     async function selectSession(id){
 
-        setSessionId(id);
+        const requestId = selectionRequestRef.current + 1;
+        selectionRequestRef.current = requestId;
 
-
-        localStorage.setItem(
-            "activeSessionId",
-            id
-        );
+        activateSession(id);
 
 
         const history = await loadChatMessages(id);
 
 
-        setMessages(history);
+        if(selectionRequestRef.current === requestId){
+            setMessages(history);
+        }
+
+    }
+
+
+    async function deleteConversation(id){
+
+        await deleteChatSession(id);
+
+        const remainingSessions = sessions.filter(
+            session => session.id !== id
+        );
+
+        setSessions(remainingSessions);
+
+        if(sessionId !== id){
+            return;
+        }
+
+        if(remainingSessions.length > 0){
+            await selectSession(remainingSessions[0].id);
+            return;
+        }
+
+        localStorage.removeItem("activeSessionId");
+        await createNewChat();
 
     }
 
@@ -112,6 +162,8 @@ export function ChatProvider({ children }) {
 
         if(!sessionId) return;
 
+        const targetSessionId = sessionId;
+
 
         setLoading(true);
 
@@ -119,16 +171,20 @@ export function ChatProvider({ children }) {
         try {
 
             const response = await sendChatMessage(
-                sessionId,
+                targetSessionId,
                 message
             );
 
 
-            setMessages(prev => [
-                ...prev,
-                response.userMessage,
-                response.aiMessage
-            ]);
+            updateSession(response.session);
+
+            if(activeSessionRef.current === targetSessionId){
+                setMessages(prev => [
+                    ...prev,
+                    response.userMessage,
+                    response.aiMessage
+                ]);
+            }
 
 
         } finally {
@@ -150,7 +206,8 @@ export function ChatProvider({ children }) {
                 loading,
                 send,
                 createNewChat,
-                selectSession
+                selectSession,
+                deleteConversation
             }}
         >
 

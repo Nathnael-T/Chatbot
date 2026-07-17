@@ -1,4 +1,5 @@
-const API_URL = "http://localhost:8080/api/chat";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+const API_URL = `${API_BASE_URL}/chat`;
 
 export async function createSession() {
     const response = await fetch(`${API_URL}/session`, {
@@ -48,11 +49,23 @@ export async function getMessages(sessionId) {
 
 export async function getSessions() {
     const response = await fetch(
-        "http://localhost:8080/api/chat/sessions"
+        `${API_URL}/sessions`
     );
 
     if (!response.ok) {
         throw new Error("Failed to load conversations");
+    }
+
+    return await response.json();
+}
+
+export async function deleteSession(sessionId) {
+    const response = await fetch(`${API_URL}/${sessionId}`, {
+        method: "DELETE"
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to delete conversation");
     }
 
     return await response.json();

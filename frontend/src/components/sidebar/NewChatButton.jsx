@@ -2,7 +2,7 @@ import Button from "../ui/Button";
 import { Plus } from "lucide-react";
 
 
-function NewChatButton(){
+function NewChatButton({ onClick }){
 
 
     return (
@@ -14,6 +14,8 @@ function NewChatButton(){
             "
 
             icon={<Plus size={18}/>}
+
+            onClick={onClick}
 
         >
 

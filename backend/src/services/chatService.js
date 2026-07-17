@@ -63,26 +63,58 @@ async function getMessages(sessionId){
     return data.reverse();
 }
 
+async function getSession(sessionId){
+
+    const {data,error}=await supabase
+        .from("chat_sessions")
+        .select("*")
+        .eq("id",sessionId)
+        .single();
+
+
+    if(error){
+        throw error;
+    }
+
+
+    return data;
+}
+
+async function updateSessionTitle(sessionId, title){
+
+    const {data,error}=await supabase
+        .from("chat_sessions")
+        .update({ title })
+        .eq("id",sessionId)
+        .select()
+        .single();
+
+
+    if(error){
+        throw error;
+    }
+
+
+    return data;
+}
+
+async function ensureSessionTitle(sessionId, message){
+
+    const session = await getSession(sessionId);
+
+    if(session.title && session.title.trim()){
+        return session;
+    }
+
+    const title = await aiService.generateTitle(message);
+
+    return await updateSessionTitle(
+        sessionId,
+        title || "New Chat"
+    );
+}
+
 async function generateAIResponse(sessionId, message){
-
-    const history = await getMessages(sessionId);
-
-
-    // Remove current user message
-    history.pop();
-
-
-    const messages = history.map((msg)=>({
-        role: msg.sender,
-        content: msg.content
-    }));
-
-
-    messages.push({
-        role:"user",
-        content:message
-    });
-
 
    const conversation = await getMessages(sessionId);
 
@@ -118,10 +150,42 @@ async function getSessions(){
     return data;
 }
 
+async function deleteSession(sessionId){
+
+    const {error:messagesError}=await supabase
+        .from("messages")
+        .delete()
+        .eq("session_id",sessionId);
+
+
+    if(messagesError){
+        throw messagesError;
+    }
+
+
+    const {error:sessionError}=await supabase
+        .from("chat_sessions")
+        .delete()
+        .eq("id",sessionId);
+
+
+    if(sessionError){
+        throw sessionError;
+    }
+
+
+    return {
+        id: sessionId
+    };
+}
+
 module.exports={
     createSession,
     saveMessage,
     getMessages,
+    getSession,
+    ensureSessionTitle,
     generateAIResponse,
-    getSessions
+    getSessions,
+    deleteSession
 };

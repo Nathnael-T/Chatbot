@@ -1,4 +1,4 @@
-function SearchChats(){
+function SearchChats({ value, onChange }){
 
 
     return (
@@ -6,6 +6,10 @@ function SearchChats(){
         <input
 
             placeholder="Search conversations..."
+
+            value={value}
+
+            onChange={(event) => onChange(event.target.value)}
 
             className="
                 mt-4
