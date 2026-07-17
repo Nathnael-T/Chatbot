@@ -4,7 +4,8 @@ import {
     startChatSession,
     sendChatMessage,
     loadChatMessages,
-    loadSessions
+    loadSessions,
+    deleteChatSession
 } from "../services/chatService";
 
 
@@ -108,6 +109,31 @@ export function ChatProvider({ children }) {
     }
 
 
+    async function deleteConversation(id){
+
+        await deleteChatSession(id);
+
+        const remainingSessions = sessions.filter(
+            session => session.id !== id
+        );
+
+        setSessions(remainingSessions);
+
+        if(sessionId !== id){
+            return;
+        }
+
+        if(remainingSessions.length > 0){
+            await selectSession(remainingSessions[0].id);
+            return;
+        }
+
+        localStorage.removeItem("activeSessionId");
+        await createNewChat();
+
+    }
+
+
     async function send(message){
 
         if(!sessionId) return;
@@ -150,7 +176,8 @@ export function ChatProvider({ children }) {
                 loading,
                 send,
                 createNewChat,
-                selectSession
+                selectSession,
+                deleteConversation
             }}
         >
 

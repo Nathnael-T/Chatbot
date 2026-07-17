@@ -21,6 +21,11 @@ router.get(
     controller.getChatSessions
 );
 
+router.delete(
+    "/:sessionId",
+    controller.deleteChatSession
+);
+
 router.get(
     "/:sessionId",
     controller.getChatHistory

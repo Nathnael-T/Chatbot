@@ -2,7 +2,8 @@ import {
     createSession,
     sendMessage,
     getMessages,
-    getSessions
+    getSessions,
+    deleteSession
 } from "../api/chatApi";
 
 
@@ -23,4 +24,9 @@ export async function loadChatMessages(sessionId) {
 
 export async function loadSessions() {
     return await getSessions();
+}
+
+
+export async function deleteChatSession(sessionId) {
+    return await deleteSession(sessionId);
 }

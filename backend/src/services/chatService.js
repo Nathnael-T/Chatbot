@@ -118,10 +118,40 @@ async function getSessions(){
     return data;
 }
 
+async function deleteSession(sessionId){
+
+    const {error:messagesError}=await supabase
+        .from("messages")
+        .delete()
+        .eq("session_id",sessionId);
+
+
+    if(messagesError){
+        throw messagesError;
+    }
+
+
+    const {error:sessionError}=await supabase
+        .from("chat_sessions")
+        .delete()
+        .eq("id",sessionId);
+
+
+    if(sessionError){
+        throw sessionError;
+    }
+
+
+    return {
+        id: sessionId
+    };
+}
+
 module.exports={
     createSession,
     saveMessage,
     getMessages,
     generateAIResponse,
-    getSessions
+    getSessions,
+    deleteSession
 };

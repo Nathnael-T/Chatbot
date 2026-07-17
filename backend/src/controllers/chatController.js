@@ -82,6 +82,27 @@ async function getChatSessions(req,res){
     }
 
 }
+
+async function deleteChatSession(req,res){
+
+    try{
+
+        const deletedSession = await chatService.deleteSession(
+            req.params.sessionId
+        );
+
+        res.json(deletedSession);
+
+    }catch(error){
+
+        res.status(500).json({
+            error:error.message
+        });
+
+    }
+
+}
+
  async function getChatHistory(req, res){
 
     try{
@@ -107,5 +128,6 @@ module.exports = {
     createChatSession,
     sendMessage,
     getChatSessions,
-    getChatHistory
+    getChatHistory,
+    deleteChatSession
 };

@@ -1,11 +1,40 @@
+import { useMemo, useState } from "react";
 import Card from "../ui/Card";
+import ConversationItem from "./ConversationItem";
 import NewChatButton from "./NewChatButton";
 import SearchChats from "./SearchChats";
 
-function Sidebar({ sessions, onNewChat, onSelectSession }) {
+function Sidebar({
+    sessions,
+    activeSessionId,
+    onNewChat,
+    onSelectSession,
+    onDeleteSession
+}) {
+
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const filteredSessions = useMemo(() => {
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+
+        if(!normalizedSearch){
+            return sessions;
+        }
+
+        return sessions.filter((session) => {
+            const title = session.title || "New Chat";
+            const createdAt = session.created_at
+                ? new Date(session.created_at).toLocaleDateString()
+                : "";
+
+            return `${title} ${createdAt}`
+                .toLowerCase()
+                .includes(normalizedSearch);
+        });
+    }, [sessions, searchTerm]);
 
     return (
-        <aside className="w-80 h-full p-4 border-r border-white/10 bg-[#081418]">
+        <aside className="h-full w-80 shrink-0 border-r border-white/10 bg-[#081418] p-4 max-lg:w-72 max-md:w-[min(22rem,calc(100vw-2rem))]">
 
             <Card className="h-full flex flex-col p-5">
 
@@ -26,48 +55,32 @@ function Sidebar({ sessions, onNewChat, onSelectSession }) {
 
                         <NewChatButton onClick={onNewChat} />
 
-                        <SearchChats />
+                        <SearchChats
+                            value={searchTerm}
+                            onChange={setSearchTerm}
+                        />
 
                     </div>
 
 
-                    <div className="flex-1 mt-6 space-y-2 overflow-y-auto">
+                    <div className="flex-1 mt-6 space-y-2 overflow-y-auto pr-1">
 
-                        {sessions.length === 0 ? (
+                        {filteredSessions.length === 0 ? (
 
                             <p className="text-gray-500 text-sm text-center">
-                                No conversations yet
+                                {searchTerm ? "No matching conversations" : "No conversations yet"}
                             </p>
 
                         ) : (
 
-                            sessions.map((session) => (
-
-                                <div
+                            filteredSessions.map((session) => (
+                                <ConversationItem
                                     key={session.id}
-                                    onClick={() => onSelectSession(session.id)}
-                                    className="
-                                        p-3
-                                        rounded-lg
-                                        hover:bg-white/5
-                                        cursor-pointer
-                                        text-sm
-                                        transition
-                                    "
-                                >
-
-                                    <p className="text-white truncate">
-                                        {session.title || "New Chat"}
-                                    </p>
-
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        {new Date(
-                                            session.created_at
-                                        ).toLocaleDateString()}
-                                    </p>
-
-                                </div>
-
+                                    session={session}
+                                    active={session.id === activeSessionId}
+                                    onSelect={onSelectSession}
+                                    onDelete={onDeleteSession}
+                                />
                             ))
 
                         )}
