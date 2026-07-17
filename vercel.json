@@ -5,7 +5,7 @@
     },
     "backend": {
       "root": "backend",
-      "framework": "node",
+      "framework": "express",
       "entrypoint": "src/server.js"
     }
   },
